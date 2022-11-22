@@ -1,0 +1,72 @@
+Parade: 
+	de 3 a 6 jugadores
+	existen 6 colores de cartas
+	cada color posee 11 cartas que van desde el 0 al 10 
+	por lo tanto hay 66 cartas en total
+	
+	
+	preparacion:
+		-se mezclan todas las cartas del mazo
+		-se revelan las 6 primeras cartas
+			**llamaremos a esta fila de cartas el "carnaval"** 
+		-se entregan 5 cartas a cada jugador
+	
+	Turno:
+		1_El jugador juega una carta, colocando esta
+		a la derecha del "carnaval": 
+		
+		2_Se evalua la carta con respecto a la cantidad de cartas en el carnaval,
+		pudiendo darse una (y solo una) de las dos siguientes alternativas:
+		
+		2_aSi la carta jugada es mayor o igual a la cantidad
+		de cartas del carnaval: 
+			se agrega la carta jugada al carnaval
+			
+		2b_Si la carta jugada es menor a la cantidad de cartas
+		en el carnaval:
+			tomando n = cantidad de cartas del carnaval - numero de la carta jugada
+			evaluaremos las primeras n cartas del carnaval y el jugador
+			levantará todas las cartas del mismo color que la carta jugada
+			y todas aquellas cartas que tengan un numero inferior al de la carta jugada.
+			por ejemplo:
+				Carnaval = { 2 Rojo, 4 rojo, 2 azul, 10 verde, 6 amarillo, 8 violeta, 3 verde}
+				jugador juega: {3 rojo}
+				
+				tamaño carnaval = 7
+				numero carta jugada = 3
+				n = 7-3 = 4
+				
+				primeras n cartas = { 2 Rojo, 4 rojo, 2 azul, 10 verde}  jugador juega: {3 rojo}
+				jugador levanta = {2 rojo, 4 rojo, 2 azul}
+			
+			una vez levantadas las cartas el jugador las organiza por color en su area de juego
+		
+		3_El jugador toma una carta del mazo y le cede el turno al siguiente jugador.
+
+	
+	Fin de juego:
+	El final de juego puede ocurrir de dos maneras distintas:
+		1_Si un jugador tiene cartas de los 6 colores en su area de juego.
+		
+		2_Si un jugador roba la ultima carta del mazo
+	
+	Si ocurre el Fin de juego: 
+		Los jugadores jugaran una ultima ronda en la que no robaran carta, quedando con 4 cartas en mano
+		de estas cuatro cartas va a conservar 2 y descartará 2, agregando las conservadas a su area de juego.
+		Una vez ocurrido todo esto se pasa a calcular la puntuacion.
+		
+
+
+	Puntuacion:
+		1_el jugador o jugadores con mayoria de cartas en un color en especifico,
+		  dan vuelta las cartas de ese color.
+		
+		2_Se evaluan los puntos de cada jugador de la siguiente manera:
+			cada carta se suma teniendo en cuenta el siguiente criterio: 
+			- 1 punto por cada carta que tiene boca abajo.
+			- el puntaje real(numero) de cada carta que tiene boca arriba.
+		
+	Ganador: 
+		GANA EL JUGADOR CON LA MENOR CANTIDAD DE PUNTOS OBTENIDOS.	  
+	
+
