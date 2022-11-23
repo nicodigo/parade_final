@@ -50,8 +50,7 @@ public class ParadeLogIn extends JFrame implements IVistaParade {
 		
 		JPanel panelUsuario = new JPanel();
 		panelUsuario.setLayout(new MigLayout("","[]","[]"));
-		panelUsuario.setBackground(Color.WHITE);
-		//panelUsuario.setPreferredSize(new Dimension(500, 200));
+		panelUsuario.setBackground(contentPane.getBackground());
 		
 		JLabel lblUsuario = new JLabel("Ingrese su nombre: ", SwingConstants.CENTER);
 		lblUsuario.setForeground(new Color(239,225,205));

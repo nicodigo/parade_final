@@ -68,6 +68,7 @@ public class ParadeCliente {
 				vistaParade.inicializar();
 			}
 		});
+		System.out.println("final");
 		
 		
 	}

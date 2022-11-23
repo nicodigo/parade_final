@@ -33,6 +33,7 @@ public class Controlador implements IControladorRemoto {
 	}
 	
 	private void notificarEventoVista(EventoParade e) {
+		System.out.println(e.toString());
 		switch(e) {
 		case JUGADOR_ELIMINADO:
 			try {
@@ -97,18 +98,6 @@ public class Controlador implements IControladorRemoto {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			break;
-		case INSUFICIENTES_JUGADORES:{
-			JOptionPane.showMessageDialog(null, "jugadoresinsuficienteasd");
-			System.out.println("aaaaaa" +miJugador.getMano().getCartas().size());
-			vista.actualizarMiJugador(miJugador);
-			try {
-				vista.actualizarCarnaval(juego.getCarnaval());
-			} catch (RemoteException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-		}
 			break;
 			
 		}
@@ -268,10 +257,12 @@ public class Controlador implements IControladorRemoto {
 	}
 	
 	public void desconectar() {
+		
 		try {
 			juego.removerObservador(this);
 			if(miJugador != null) {
 				juego.eliminarJugador(miJugador.getNombre());
+				miJugador = null;
 			}
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block

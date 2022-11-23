@@ -279,6 +279,9 @@ public class ParadeVistaGUI extends JFrame implements IVistaParade {
 	
 	@Override
 	public void inicializar() {
+		actualizarPanelCarnaval(controlador.getCarnaval());
+		actualizarPanelMano(controlador.getMiJugador());
+		miAreaDeJuego.actualizarAreaDejuego(controlador.getMiJugador());
 		
 		setLocationRelativeTo(null);
 		setFocusable(true);

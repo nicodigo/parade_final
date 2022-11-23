@@ -87,17 +87,14 @@ public class Parade extends ObservableRemoto implements IParade{
 			int indiceEliminado = jugadores.indexOf(j);
 			res = jugadores.remove(j);
 			
-			
 			if (res && !jugadores.isEmpty()) {
 				notificarObservadores(EventoParade.JUGADOR_ELIMINADO);
 				notificarObservadores(new MensajeGlobal(nombre + " se ha desconectado de la partida"));
 				if (indiceEliminado == jugadorActual)
 					notificarObservadores(EventoParade.CAMBIO_TURNO);
 			}else
-				if(jugadores.size() < MIN_JUGADORES) {
-					notificarObservadores(new MensajeGlobal("**IMPORTANTE** No alcanzan los jugadores para continuar la partida\nSe volvera a la etapa de configuracion."));
+				if(jugadores.size() == 0) {
 					reiniciarEstado();
-					notificarObservadores(EventoParade.INSUFICIENTES_JUGADORES);
 				}
 					
 		}
@@ -163,6 +160,7 @@ public class Parade extends ObservableRemoto implements IParade{
 		if (j == null)
 			return;
 		if (estado == JUGANDO) {
+			System.out.println("jugada " + estado);
 			if(j.getMano().jugarCarta(c)) {//si el jugador tiene la carta especificada la juega 
 				
 				j.getAreaJuego().agregarCartas(carnaval.jugada(c)); //toma las cartas correspondientes del carnaval

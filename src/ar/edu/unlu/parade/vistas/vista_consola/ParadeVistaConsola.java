@@ -379,7 +379,7 @@ public class ParadeVistaConsola extends JFrame implements IVistaParade {
 	private void actualizarMiAreaJuego() {
 		IJugador miJugador = controlador.getMiJugador();
 		txtAreaDeJuego.setText("Mi Area de Juego: ");
-		if(miJugador != null) {
+		if(miJugador != null && miJugador.getAreaJuego() != null) {
 			for(ColorCarta col: ColorCarta.values()) {
 				txtAreaDeJuego.append("\n\n" + col.toString() +": ");
 				
@@ -492,20 +492,22 @@ public class ParadeVistaConsola extends JFrame implements IVistaParade {
 	private void actualizarAreaMesa(Carnaval carnaval) {
 		IJugador miJugador = controlador.getMiJugador();
 		//actualizo el carnaval
-		areaMesa.setText("\n\n");
-		String strCarnaval ="| Carnaval: ";
-		for(Carta c: carnaval.getCartas()) {
-			strCarnaval = strCarnaval.concat(c.getNumero() + " " + c.getColor().toString() + "|");
+		if(carnaval != null) {
+			areaMesa.setText("\n\n");
+			String strCarnaval ="| Carnaval: ";
+			for(Carta c: carnaval.getCartas()) {
+				strCarnaval = strCarnaval.concat(c.getNumero() + " " + c.getColor().toString() + "|");
+			}
+			strCarnaval += " |";
+			for(int i = 0; i<strCarnaval.length(); i++) {
+				areaMesa.append("-");
+			}
+			areaMesa.append("\n"+ strCarnaval + "\n");
+			for(int i = 0; i<strCarnaval.length(); i++) {
+				areaMesa.append("-");
+			}
+			areaMesa.append("\n\n\n\n");
 		}
-		strCarnaval += " |";
-		for(int i = 0; i<strCarnaval.length(); i++) {
-			areaMesa.append("-");
-		}
-		areaMesa.append("\n"+ strCarnaval + "\n");
-		for(int i = 0; i<strCarnaval.length(); i++) {
-			areaMesa.append("-");
-		}
-		areaMesa.append("\n\n\n\n");
 		
 		if(miJugador != null) {
 			//actualizo la mano de mi jugador
