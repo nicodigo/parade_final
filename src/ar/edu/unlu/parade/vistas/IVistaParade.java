@@ -11,15 +11,17 @@ public interface IVistaParade {
 	
 	void inicializar();
 	
-	void jugadorAgregado(ArrayList<Jugador> jugadores);
+	void actualizarJugadoresConectados(ArrayList<IJugador> jugadores);
 
 	void juegoIniciado(Carnaval carnaval);
 
 	void jugadaRealizada(Carnaval carnaval);
+	
+	void actualizarMiJugador(IJugador miJugador);
 
 	void ultimaRonda();
 
-	void finalDeJuego();
+	void finalDeJuego(IJugador ganador);
 
 	void cambioDeTurno(IJugador jugadorTurno);
 
@@ -30,8 +32,6 @@ public interface IVistaParade {
 	void inicioEtapaDescarte();
 
 	void descarteRealizado(Carnaval carnaval);
-
-	void setControlador(Controlador controlador);
 
 
 }

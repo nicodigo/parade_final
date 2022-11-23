@@ -15,13 +15,14 @@ public class Mano implements Serializable{
 	}
 	
 	public boolean jugarCarta(Carta c) {
+		boolean ret = false;
 		for(Carta carta: cartas) {
 			if(carta.esMismoColor(c) && carta.getNumero() == c.getNumero()) {
-				c = carta;
+				ret = cartas.remove(carta);
 				break;
 			}
 		}
-		return cartas.remove(c);
+		return ret;
 	}
 	
 	

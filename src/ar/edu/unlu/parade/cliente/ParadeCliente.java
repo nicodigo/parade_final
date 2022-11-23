@@ -8,6 +8,7 @@ import javax.swing.JOptionPane;
 import ar.edu.unlu.parade.controlador.Controlador;
 import ar.edu.unlu.parade.modelo.Jugador;
 import ar.edu.unlu.parade.vistas.IVistaParade;
+import ar.edu.unlu.parade.vistas.vistaGUI.ParadeVistaGUI;
 import ar.edu.unlu.parade.vistas.vista_consola.ParadeVistaConsola;
 import ar.edu.unlu.rmimvc.RMIMVCException;
 import ar.edu.unlu.rmimvc.Util;
@@ -60,13 +61,19 @@ public class ParadeCliente {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		String nombre = JOptionPane.showInputDialog("Ingrese su nombre de usuario:").trim();
-		while(controlador.nombreExistente(nombre)) {
-			nombre = JOptionPane.showInputDialog("Nombre ya existente. Ingrese su nombre de usuario:").trim();
+		String nombre = JOptionPane.showInputDialog("Ingrese su nombre de usuario:");
+		if (nombre != null) {
+			nombre = nombre.trim();
+			while(nombre.equals("") || controlador.nombreExistente(nombre)) {
+				nombre = JOptionPane.showInputDialog("Nombre ya existente. Ingrese su nombre de usuario:").trim();
+			}
+			controlador.registrarJugador(nombre);
+			IVistaParade vistaConsola = new ParadeVistaGUI(controlador);
+			vistaConsola.inicializar();
+		}else {
+			controlador.eliminar();
+			System.exit(0);
 		}
-		controlador.registrarJugador(nombre);
-		IVistaParade vistaConsola = new ParadeVistaConsola(controlador);
-		vistaConsola.inicializar();
 		
 		
 	}

@@ -301,8 +301,8 @@ public class Parade extends ObservableRemoto implements IParade{
 	}
 
 	@Override
-	public ArrayList<Jugador> getJugadores() throws RemoteException {
-		ArrayList<Jugador> resultado = new ArrayList<Jugador>();
+	public ArrayList<IJugador> getJugadores() throws RemoteException {
+		ArrayList<IJugador> resultado = new ArrayList<IJugador>();
 		for (Jugador j: jugadores) 
 			resultado.add(j);
 		return resultado;

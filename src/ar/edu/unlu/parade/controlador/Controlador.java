@@ -35,9 +35,15 @@ public class Controlador implements IControladorRemoto {
 	private void notificarEventoVista(EventoParade e) {
 		switch(e) {
 		case JUGADOR_ELIMINADO:
+			try {
+				vista.actualizarJugadoresConectados(juego.getJugadores());
+			} catch (RemoteException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
 		case NUEVO_JUGADOR:
 			try {
-				vista.jugadorAgregado(juego.getJugadores());
+				vista.actualizarJugadoresConectados(juego.getJugadores());
 			} catch (RemoteException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -73,6 +79,8 @@ public class Controlador implements IControladorRemoto {
 		case CAMBIO_TURNO:
 			try {
 				jugadorActual = juego.getJugadorActual();
+				if(jugadorActual.getNombre().equals(miJugador.getNombre()))
+					vista.mostrarMensaje("--- ES TU TURNO ---");
 			} catch (RemoteException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -91,7 +99,12 @@ public class Controlador implements IControladorRemoto {
 			}
 			break;
 		case FIN_DE_JUEGO:
-			vista.finalDeJuego();
+			try {
+				vista.finalDeJuego(juego.getGanador());
+			} catch (RemoteException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			break;
 			
 		}
@@ -118,6 +131,7 @@ public class Controlador implements IControladorRemoto {
 		else
 			try {
 				juego.jugarCarta(carta, miJugador.getNombre());
+				vista.actualizarMiJugador(miJugador);
 			} catch (RemoteException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -188,24 +202,15 @@ public class Controlador implements IControladorRemoto {
 	public void descartar(Carta c1, Carta c2) {
 			try {
 				juego.descartar(miJugador.getNombre(), c1, c2);
+				vista.actualizarMiJugador(miJugador);
 			} catch (RemoteException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 	}
 
-//	@Override
-//	public void actualizar(EventoParade e) {
-//		notificarEventoVista(e);	
-//	}
-//
-//	@Override
-//	public void actualizar(Jugador jugador, String msjError) {
-//		vista.notificarError(jugador, msjError);
-//		
-//	}
 
-	public ArrayList<Jugador> getJugadores() {
+	public ArrayList<IJugador> getJugadores() {
 		try {
 			return juego.getJugadores();
 		} catch (RemoteException e) {
@@ -263,6 +268,18 @@ public class Controlador implements IControladorRemoto {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return null;
+		}
+	}
+	
+	public void eliminar() {
+		try {
+			if(miJugador != null) {
+				juego.eliminarJugador(miJugador.getNombre());
+			}
+			juego.removerObservador(this);
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 

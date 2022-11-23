@@ -61,9 +61,12 @@ public class HistorialGanadores implements Serializable {
 	
 	public ArrayList<EntidadGanador> getTopGanadores(){
 		ArrayList<EntidadGanador> topGanadores = new ArrayList<EntidadGanador>();
-		for(int i = 0; i<10; i++) {
-			topGanadores.add(ganadoresHistoricos.get(i));
-		}
+			for(int i = 0; i<ganadoresHistoricos.size(); i++) { 
+				topGanadores.add(ganadoresHistoricos.get(i));
+				if(i == 9)
+					break;
+			}
+
 		return topGanadores;
 	}
 }

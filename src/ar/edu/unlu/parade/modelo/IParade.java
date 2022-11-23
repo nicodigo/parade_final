@@ -26,7 +26,7 @@ public interface IParade extends IObservableRemoto, Serializable{
 
 	Carnaval getCarnaval() throws RemoteException;
 
-	ArrayList<Jugador> getJugadores() throws RemoteException;
+	ArrayList<IJugador> getJugadores() throws RemoteException;
 
 	IJugador getJugador(String nombre) throws RemoteException;
 

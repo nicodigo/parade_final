@@ -65,10 +65,9 @@ public class ParadeVistaConsola extends JFrame implements IVistaParade {
 	@Override
 	public void inicializar() {
 		setTitle("Parade Consola");
-		setResizable(false);
+		setResizable(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(0, 0, ANCHO, ALTO);
-		setResizable(false);
 		contentPane = new JPanel();
 		setContentPane(contentPane);
 		contentPane.setBorder(new EmptyBorder(0,0,0,0));
@@ -529,7 +528,7 @@ public class ParadeVistaConsola extends JFrame implements IVistaParade {
 	}
 	
 	//actualiza la lista de jugadores
-	private void actualizarListaJugadores(ArrayList<Jugador> jugadores) {
+	private void actualizarListaJugadores(ArrayList<IJugador> jugadores) {
 		areaJugadores.setForeground(Color.CYAN);
 		areaJugadores.setText("Vista del Jugador: \n");
 		areaJugadores.append(controlador.getMiJugador().getNombre());
@@ -577,7 +576,7 @@ public class ParadeVistaConsola extends JFrame implements IVistaParade {
 	
 
 	@Override
-	public void jugadorAgregado(ArrayList<Jugador> jugadores) {
+	public void actualizarJugadoresConectados(ArrayList<IJugador> jugadores) {
 		actualizarListaJugadores(jugadores);
 	}
 
@@ -612,9 +611,9 @@ public class ParadeVistaConsola extends JFrame implements IVistaParade {
 	}
 
 	@Override
-	public void finalDeJuego() {
+	public void finalDeJuego(IJugador ganador) {
 		mostrarMensaje("** JUEGO FINALIZADO ** ");
-		mostrarMensaje("EL GANADOR FUE... "+ controlador.getGanador().getNombre()+ "!!!");
+		mostrarMensaje("EL GANADOR FUE... "+ ganador.getNombre()+ "!!!");
 		mostrarMensaje("GRACIAS POR HABER JUGADO :D");
 		
 	}
@@ -638,12 +637,6 @@ public class ParadeVistaConsola extends JFrame implements IVistaParade {
 		
 	}
 	
-	public void setControlador(Controlador c) {
-		this.controlador = c;
-	}
-
-
-
 
 
 	@Override
