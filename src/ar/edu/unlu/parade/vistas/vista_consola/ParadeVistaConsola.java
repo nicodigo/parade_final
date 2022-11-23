@@ -1,6 +1,6 @@
 package ar.edu.unlu.parade.vistas.vista_consola;
 
-import java.awt.BorderLayout; 
+import java.awt.BorderLayout;  
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -12,7 +12,6 @@ import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -24,14 +23,14 @@ import ar.edu.unlu.parade.modelo.Carnaval;
 import ar.edu.unlu.parade.modelo.Carta;
 import ar.edu.unlu.parade.modelo.ColorCarta;
 import ar.edu.unlu.parade.modelo.IJugador;
-import ar.edu.unlu.parade.modelo.Jugador;
 import ar.edu.unlu.parade.ranking.EntidadGanador;
-import ar.edu.unlu.parade.ranking.EntidadJugador;
 import ar.edu.unlu.parade.ranking.HistorialGanadores;
-import ar.edu.unlu.parade.ranking.RankingPuntajes;
 import ar.edu.unlu.parade.vistas.IVistaParade;
 
 public class ParadeVistaConsola extends JFrame implements IVistaParade {
+
+
+	private static final long serialVersionUID = 1L;
 	public static final int ANCHO = 1500;
 	public static final int ALTO = 720;
 	
@@ -82,7 +81,7 @@ public class ParadeVistaConsola extends JFrame implements IVistaParade {
 		
 		this.addWindowListener(new WindowAdapter() {
 		    public void windowClosing(WindowEvent e) {
-		        controlador.desconectarJugador();
+		        controlador.desconectar();
 		    }
 		    
 		});
@@ -288,7 +287,6 @@ public class ParadeVistaConsola extends JFrame implements IVistaParade {
 			mostrarMensaje("Reglas del juego Parade: https://www.youtube.com/watch?v=xyQ0Blrrfus");
 			return;
 		case "ranking":
-			mostrarRankingPuntaje(controlador.getRankingPuntaje());
 			mostrarRankingGanadores(controlador.getRankingGanadores());
 			return;
 		}
@@ -540,22 +538,6 @@ public class ParadeVistaConsola extends JFrame implements IVistaParade {
 	}
 	
 	
-	
-	private void mostrarRankingPuntaje(RankingPuntajes rankingPuntaje) {
-		
-		if(rankingPuntaje == null || rankingPuntaje.getTopPuntajes().isEmpty()) {
-			mostrarMensaje("NO Existe un ranking de puntajes aun, luego de jugar una partida, se creara automaticamente");
-			return;
-		}
-		System.out.println(rankingPuntaje.getTopPuntajes().size());
-		areaTexto.append("\n\n-------------- RANKING PUNTAJE --------------\n");
-		areaTexto.append("-- NOMBRE -- \t\t -- PUNTAJE --\n");
-		for(EntidadJugador j: rankingPuntaje.getTopPuntajes())
-			areaTexto.append(" " + j.getNombre() +" \t\t\t " + j.getPuntaje() + "\n");
-		areaTexto.append("---------------------------------------------");
-		
-	}
-	
 	private void mostrarRankingGanadores(HistorialGanadores rankingGanadores) {
 		
 		if(rankingGanadores == null || rankingGanadores.getGanadoresHistoricos().isEmpty()) {
@@ -598,9 +580,8 @@ public class ParadeVistaConsola extends JFrame implements IVistaParade {
 
 
 	@Override
-	public void jugadaRealizada(Carnaval carnaval) {
+	public void actualizarCarnaval(Carnaval carnaval) {
 		actualizarAreaMesa(carnaval);
-		actualizarMiAreaJuego();
 		actualizarAreaTurno(controlador.getJugadorActual().getNombre());
 	}
 
@@ -615,6 +596,7 @@ public class ParadeVistaConsola extends JFrame implements IVistaParade {
 		mostrarMensaje("** JUEGO FINALIZADO ** ");
 		mostrarMensaje("EL GANADOR FUE... "+ ganador.getNombre()+ "!!!");
 		mostrarMensaje("GRACIAS POR HABER JUGADO :D");
+		jugando = false;
 		
 	}
 
@@ -647,11 +629,11 @@ public class ParadeVistaConsola extends JFrame implements IVistaParade {
 		
 	}
 
-
 	@Override
-	public void descarteRealizado(Carnaval carnaval) {
-		actualizarAreaMesa(carnaval);
+	public void actualizarMiJugador(IJugador miJugador) {
+		actualizarAreaMesa(controlador.getCarnaval());
 		actualizarMiAreaJuego();
+		
 	}
 
 

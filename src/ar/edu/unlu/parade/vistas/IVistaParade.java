@@ -1,11 +1,9 @@
 package ar.edu.unlu.parade.vistas;
 
-import java.util.ArrayList;
+import java.util.ArrayList; 
 
-import ar.edu.unlu.parade.controlador.Controlador;
 import ar.edu.unlu.parade.modelo.Carnaval;
 import ar.edu.unlu.parade.modelo.IJugador;
-import ar.edu.unlu.parade.modelo.Jugador;
 
 public interface IVistaParade {
 	
@@ -15,7 +13,7 @@ public interface IVistaParade {
 
 	void juegoIniciado(Carnaval carnaval);
 
-	void jugadaRealizada(Carnaval carnaval);
+	void actualizarCarnaval(Carnaval carnaval);
 	
 	void actualizarMiJugador(IJugador miJugador);
 
@@ -30,8 +28,5 @@ public interface IVistaParade {
 	void mostrarMensaje(String mensaje);
 
 	void inicioEtapaDescarte();
-
-	void descarteRealizado(Carnaval carnaval);
-
 
 }

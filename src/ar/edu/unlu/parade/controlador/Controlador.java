@@ -1,19 +1,19 @@
 package ar.edu.unlu.parade.controlador;
 
-import java.rmi.RemoteException; 
+import java.rmi.RemoteException;  
 import java.util.ArrayList;
+
+import javax.swing.JOptionPane;
 
 import ar.edu.unlu.parade.modelo.Carnaval;
 import ar.edu.unlu.parade.modelo.Carta;
-import ar.edu.unlu.parade.modelo.EventoParade;
 import ar.edu.unlu.parade.modelo.IJugador;
 import ar.edu.unlu.parade.modelo.IParade;
-import ar.edu.unlu.parade.modelo.Jugador;
-import ar.edu.unlu.parade.modelo.MensajeDeError;
-import ar.edu.unlu.parade.modelo.ObserverParade;
-import ar.edu.unlu.parade.modelo.Parade;
+import ar.edu.unlu.parade.modelo.eventos.EventoParade;
+import ar.edu.unlu.parade.modelo.eventos.MensajeDeError;
+import ar.edu.unlu.parade.modelo.eventos.MensajeGlobal;
+import ar.edu.unlu.parade.modelo.eventos.MensajeIndividual;
 import ar.edu.unlu.parade.ranking.HistorialGanadores;
-import ar.edu.unlu.parade.ranking.RankingPuntajes;
 import ar.edu.unlu.parade.vistas.IVistaParade;
 import ar.edu.unlu.rmimvc.cliente.IControladorRemoto;
 import ar.edu.unlu.rmimvc.observer.IObservableRemoto;
@@ -71,7 +71,7 @@ public class Controlador implements IControladorRemoto {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			vista.jugadaRealizada(carnaval);
+			vista.actualizarCarnaval(carnaval);
 			break;
 		case ULTIMA_RONDA:
 			vista.ultimaRonda();
@@ -90,14 +90,6 @@ public class Controlador implements IControladorRemoto {
 		case ETAPA_DESCARTE:
 			vista.inicioEtapaDescarte();
 			break;
-		case DESCARTE_REALIZADO:
-			try {
-				vista.descarteRealizado(juego.getCarnaval());
-			} catch (RemoteException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			break;
 		case FIN_DE_JUEGO:
 			try {
 				vista.finalDeJuego(juego.getGanador());
@@ -105,6 +97,18 @@ public class Controlador implements IControladorRemoto {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
+			break;
+		case INSUFICIENTES_JUGADORES:{
+			JOptionPane.showMessageDialog(null, "jugadoresinsuficienteasd");
+			System.out.println("aaaaaa" +miJugador.getMano().getCartas().size());
+			vista.actualizarMiJugador(miJugador);
+			try {
+				vista.actualizarCarnaval(juego.getCarnaval());
+			} catch (RemoteException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
 			break;
 			
 		}
@@ -188,17 +192,6 @@ public class Controlador implements IControladorRemoto {
 		}
 	}
 
-	public boolean desconectarJugador() {
-		try {
-			return juego.eliminarJugador(miJugador.getNombre());
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
-		}
-		
-	}
-
 	public void descartar(Carta c1, Carta c2) {
 			try {
 				juego.descartar(miJugador.getNombre(), c1, c2);
@@ -240,6 +233,18 @@ public class Controlador implements IControladorRemoto {
 				vista.mostrarError(error.getMensaje());
 		}
 		
+
+		if(objeto instanceof MensajeIndividual) {
+			MensajeIndividual msj = (MensajeIndividual) objeto;
+			if (msj.getReceptor().getNombre().equals(miJugador.getNombre()))
+				vista.mostrarMensaje(msj.getMensaje());
+		}
+		
+		if(objeto instanceof MensajeGlobal) {
+			MensajeGlobal mensaje = (MensajeGlobal) objeto;
+			vista.mostrarMensaje(mensaje.getMensaje());
+		}
+		
 	}
 
 	@Override
@@ -251,16 +256,7 @@ public class Controlador implements IControladorRemoto {
 		return miJugador;
 	}
 
-	public RankingPuntajes getRankingPuntaje() {
-		try {
-			return juego.getRankingPuntaje();
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		}
-	}
-	
+
 	public HistorialGanadores getRankingGanadores() {
 		try {
 			return juego.getRankingGanadores();
@@ -271,12 +267,12 @@ public class Controlador implements IControladorRemoto {
 		}
 	}
 	
-	public void eliminar() {
+	public void desconectar() {
 		try {
+			juego.removerObservador(this);
 			if(miJugador != null) {
 				juego.eliminarJugador(miJugador.getNombre());
 			}
-			juego.removerObservador(this);
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

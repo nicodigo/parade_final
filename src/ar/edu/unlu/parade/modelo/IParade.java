@@ -1,11 +1,10 @@
 package ar.edu.unlu.parade.modelo;
 
-import java.io.Serializable;
+import java.io.Serializable; 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 
 import ar.edu.unlu.parade.ranking.HistorialGanadores;
-import ar.edu.unlu.parade.ranking.RankingPuntajes;
 import ar.edu.unlu.rmimvc.observer.IObservableRemoto;
 
 public interface IParade extends IObservableRemoto, Serializable{
@@ -31,8 +30,6 @@ public interface IParade extends IObservableRemoto, Serializable{
 	IJugador getJugador(String nombre) throws RemoteException;
 
 	boolean yaExiste(String nombre) throws RemoteException;
-	
-	 RankingPuntajes getRankingPuntaje() throws RemoteException;
 	 
-	 HistorialGanadores getRankingGanadores() throws RemoteException;
+	HistorialGanadores getRankingGanadores() throws RemoteException;
 }

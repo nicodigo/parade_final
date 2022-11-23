@@ -1,14 +1,12 @@
 package ar.edu.unlu.parade.vistas.vistaGUI;
 
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.EventQueue;
+import java.awt.Color; 
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
@@ -22,12 +20,9 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
 import ar.edu.unlu.parade.controlador.Controlador;
-import ar.edu.unlu.parade.modelo.AreaDeJuego;
 import ar.edu.unlu.parade.modelo.Carnaval;
 import ar.edu.unlu.parade.modelo.Carta;
-import ar.edu.unlu.parade.modelo.ColorCarta;
 import ar.edu.unlu.parade.modelo.IJugador;
-import ar.edu.unlu.parade.modelo.Jugador;
 import ar.edu.unlu.parade.ranking.HistorialGanadores;
 import ar.edu.unlu.parade.vistas.IVistaParade;
 import net.miginfocom.swing.MigLayout;
@@ -79,6 +74,14 @@ public class ParadeVistaGUI extends JFrame implements IVistaParade {
 		
 		this.controlador = controlador;
 		controlador.setVista(this);
+		
+		this.addWindowListener(new WindowAdapter() {
+		    public void windowClosing(WindowEvent e) {
+		        controlador.desconectar();
+		        System.exit(0);
+		    }
+		    
+		});
 		
 		panelTitulo= new JPanel();
 		panelTitulo.setBorder(BorderFactory.createEmptyBorder());
@@ -314,14 +317,14 @@ public class ParadeVistaGUI extends JFrame implements IVistaParade {
 
 	private void actualizarPanelMano(IJugador miJugador) {
 		if(miJugador != null && miJugador.getMano() != null) {
-			System.out.println("entro");
-			System.out.println(miJugador.getNombre() + miJugador.getMano().getCarta(0).getColor());
 			pnlMiMano.removeAll();
-			miMano.clear();
-			for(Carta carta: miJugador.getMano().getCartas()) {
-				CartaClickeableGUI cartaClick = new CartaClickeableGUI(carta);
-				pnlMiMano.add(cartaClick, "growy, w 50::500");
-				miMano.add(cartaClick);
+			if(miJugador.getMano().getCartas().size()>0) {
+				miMano.clear();
+				for(Carta carta: miJugador.getMano().getCartas()) {
+					CartaClickeableGUI cartaClick = new CartaClickeableGUI(carta);
+					pnlMiMano.add(cartaClick, "growy, w 50::500");
+					miMano.add(cartaClick);
+				}
 			}
 			revalidate();
 		}
@@ -329,10 +332,8 @@ public class ParadeVistaGUI extends JFrame implements IVistaParade {
 	}	
 	
 	@Override
-	public void jugadaRealizada(Carnaval carnaval) {
+	public void actualizarCarnaval(Carnaval carnaval) {
 		actualizarPanelCarnaval(carnaval);
-		actualizarPanelMano(controlador.getMiJugador());
-		miAreaDeJuego.actualizarAreaDejuego(controlador.getMiJugador());
 	}
 
 
@@ -388,13 +389,6 @@ public class ParadeVistaGUI extends JFrame implements IVistaParade {
 	public void inicioEtapaDescarte() {
 		mostrarMensaje("** INICIO DE LA ETAPA DE DESCARTE **\n Selecciona dos cartas que desees y presiona el boton \"Descartar\"\n para descartarlas, las dos restantes se sumaran a tu area de juego.");
 	}
-
-	@Override
-	public void descarteRealizado(Carnaval carnaval) {
-		// TODO Auto-generated method stub
-		
-	}
-	
 	
 	private void mostrarRanking() {
 		HistorialGanadores ranking = controlador.getRankingGanadores();
@@ -402,7 +396,7 @@ public class ParadeVistaGUI extends JFrame implements IVistaParade {
 			RankingGUI r = new RankingGUI(ranking);
 			r.setVisible(true);
 		}else
-			mostrarError("Aun no existe un ranking de ganadores, se creara luego de jugar una partida.");
+			mostrarMensaje("Aun no existe un ranking de ganadores, se creara luego de jugar una partida.");
 	}
 	
 	
@@ -422,7 +416,7 @@ public class ParadeVistaGUI extends JFrame implements IVistaParade {
 		if(nombre != null && !nombre.equals("")) {
 			nombre = nombre.trim();
 			if(controlador.nombreExistente(nombre)) {
-				AreaDeJuegoGUI areajGUI = new AreaDeJuegoGUI(controlador.getJugador(nombre));
+				new AreaDeJuegoGUI(controlador.getJugador(nombre));
 			}else
 				mostrarError("No existe ese jugador");
 		}else
@@ -452,6 +446,13 @@ public class ParadeVistaGUI extends JFrame implements IVistaParade {
 			controlador.descartar(seleccionadas.get(0).getCarta(), seleccionadas.get(1).getCarta());
 		}else
 			mostrarError("Debes seleccionar DOS carta para descartar.");
+		
+	}
+
+	@Override
+	public void actualizarMiJugador(IJugador miJugador) {
+		actualizarPanelMano(miJugador);
+		miAreaDeJuego.actualizarAreaDejuego(miJugador);
 		
 	}
 	

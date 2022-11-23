@@ -44,6 +44,7 @@ public class Jugador implements Serializable, IJugador {
 	}
 
 	public void inicializar() {
+		setPuntaje(0);
 		miAreaJuego.clear();
 		miMano.clear();
 		

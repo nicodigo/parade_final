@@ -1,15 +1,16 @@
 package ar.edu.unlu.parade.cliente;
 
-import java.rmi.RemoteException;
+import java.awt.EventQueue;
+import java.rmi.RemoteException; 
 import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
 
 import ar.edu.unlu.parade.controlador.Controlador;
-import ar.edu.unlu.parade.modelo.Jugador;
+
 import ar.edu.unlu.parade.vistas.IVistaParade;
-import ar.edu.unlu.parade.vistas.vistaGUI.ParadeVistaGUI;
-import ar.edu.unlu.parade.vistas.vista_consola.ParadeVistaConsola;
+import ar.edu.unlu.parade.vistas.log_in.ParadeLogIn;
+
 import ar.edu.unlu.rmimvc.RMIMVCException;
 import ar.edu.unlu.rmimvc.Util;
 import ar.edu.unlu.rmimvc.cliente.Cliente;
@@ -50,30 +51,23 @@ public class ParadeCliente {
 				null,
 				8888
 		);
-		Controlador controlador = new Controlador();
-		Cliente c = new Cliente(ip, Integer.parseInt(port), ipServidor, Integer.parseInt(portServidor));
-		try {
-			c.iniciar(controlador);
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (RMIMVCException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		String nombre = JOptionPane.showInputDialog("Ingrese su nombre de usuario:");
-		if (nombre != null) {
-			nombre = nombre.trim();
-			while(nombre.equals("") || controlador.nombreExistente(nombre)) {
-				nombre = JOptionPane.showInputDialog("Nombre ya existente. Ingrese su nombre de usuario:").trim();
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				Controlador controlador = new Controlador();
+				Cliente c = new Cliente(ip, Integer.parseInt(port), ipServidor, Integer.parseInt(portServidor));
+				try {
+					c.iniciar(controlador);
+				} catch (RemoteException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (RMIMVCException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				IVistaParade vistaParade = new ParadeLogIn(controlador);
+				vistaParade.inicializar();
 			}
-			controlador.registrarJugador(nombre);
-			IVistaParade vistaConsola = new ParadeVistaGUI(controlador);
-			vistaConsola.inicializar();
-		}else {
-			controlador.eliminar();
-			System.exit(0);
-		}
+		});
 		
 		
 	}

@@ -1,22 +1,23 @@
 package ar.edu.unlu.parade.modelo;
 
-import java.rmi.RemoteException;
+import java.rmi.RemoteException; 
 import java.util.ArrayList;
 
+import ar.edu.unlu.parade.modelo.eventos.EventoParade;
+import ar.edu.unlu.parade.modelo.eventos.MensajeDeError;
+import ar.edu.unlu.parade.modelo.eventos.MensajeGlobal;
 import ar.edu.unlu.parade.ranking.HistorialGanadores;
-import ar.edu.unlu.parade.ranking.RankingPuntajes;
 import ar.edu.unlu.rmimvc.observer.ObservableRemoto;
 import ar.edu.unlu.utils.serializador.Serializador;
 
 public class Parade extends ObservableRemoto implements IParade{
+	private static final long serialVersionUID = 1L;
 	private ArrayList<Jugador> jugadores;
 	private IJugador ganador = null;
 	private Carnaval carnaval;
 	private Mazo mazo;
 	private int jugadorActual;
 	private int estado;
-	private final String archivoRankingPuntajes = "rankingPuntajes.dat";
-	private RankingPuntajes rankingPuntajes;
 	private final String archivoHistorialGanadores = "rankingGanadores.dat";
 	private HistorialGanadores rankingGanadores;
 	public static final int CONFIGURANDO = 0;
@@ -24,13 +25,16 @@ public class Parade extends ObservableRemoto implements IParade{
 	public static final int ULTIMA_RONDA = 2;
 	public static final int DESCARTE = 3;
 	public static final int FIN_DE_JUEGO = 4;
+	public final int MIN_JUGADORES = 2;
 
 	
 	public Parade() {
+		ganador = null;
+		jugadorActual = -1;
 		jugadores = new ArrayList<Jugador>();
 		carnaval = new Carnaval();
 		mazo = new Mazo();
-		jugadorActual = -1;
+		estado = CONFIGURANDO;
 		
 		Serializador serializador = new Serializador(archivoHistorialGanadores);
 		rankingGanadores = ((HistorialGanadores) serializador.leerObjeto());
@@ -39,28 +43,30 @@ public class Parade extends ObservableRemoto implements IParade{
 			rankingGanadores = new HistorialGanadores();
 		}
 		
-		Serializador serializador2 = new Serializador(archivoRankingPuntajes);
-		rankingPuntajes = ((RankingPuntajes) serializador2.leerObjeto());
-		if (rankingPuntajes == null) {
-			System.out.println("nulopunt");
-			rankingPuntajes = new RankingPuntajes();
-		}
-		estado = CONFIGURANDO;
+		
 	}
-	
-	
+
+
 	@Override
 	public IJugador registrarJugador(String nombre) throws RemoteException {
 		IJugador res = null;
+		if(jugadores.size() > 6){
+			notificarObservadores(new MensajeDeError(getJugador(nombre), "La sala esta llena"));
+		}else {
 		if(estado == CONFIGURANDO) {
 			if (!yaExiste(nombre)) {
 				Jugador jugadorAgregado = new Jugador(nombre);
 				jugadores.add(jugadorAgregado);
 				res = jugadorAgregado;
 				notificarObservadores(EventoParade.NUEVO_JUGADOR);
-			}
+				notificarObservadores(new MensajeGlobal(nombre + " se ha unido a la partida"));
+			}else
+				notificarObservadores(new MensajeDeError(getJugador(nombre), "El nombre ya se encuentra registrado"));
+		}else
+			notificarObservadores(new MensajeDeError(getJugador(nombre), "No te puedes unir a una partida comenzada"));
 		}
 		return res;
+		
 	}
 	
 
@@ -84,35 +90,45 @@ public class Parade extends ObservableRemoto implements IParade{
 			
 			if (res && !jugadores.isEmpty()) {
 				notificarObservadores(EventoParade.JUGADOR_ELIMINADO);
+				notificarObservadores(new MensajeGlobal(nombre + " se ha desconectado de la partida"));
 				if (indiceEliminado == jugadorActual)
 					notificarObservadores(EventoParade.CAMBIO_TURNO);
-			}//else
-				//if(jugadores.isEmpty())
-					//System.exit(0);
+			}else
+				if(jugadores.size() < MIN_JUGADORES) {
+					notificarObservadores(new MensajeGlobal("**IMPORTANTE** No alcanzan los jugadores para continuar la partida\nSe volvera a la etapa de configuracion."));
+					reiniciarEstado();
+					notificarObservadores(EventoParade.INSUFICIENTES_JUGADORES);
+				}
+					
 		}
 		return res;
 	}
 	
-	@Override
-	public void comenzarJuego(String nombre) throws RemoteException { 
-		if(jugadores.size() < 1 || jugadores.size() > 6) {
-			return;
-		}
-		if (estado == CONFIGURANDO || estado == FIN_DE_JUEGO) {
-			mazo.inicializar();
-			mazo.mezclar();
-			inicializarCarnaval();
-			incializarJugadores();
-			repartirCartas();
-			jugadorActual = 0;
-			estado = JUGANDO;
-			notificarObservadores(EventoParade.INICIAR_JUEGO);
-		}
+	private void reiniciarEstado() {
+		ganador = null;
+		jugadorActual = -1;
+		inicializarJugadores();
+		carnaval = new Carnaval();
+		mazo = new Mazo();
+		estado = CONFIGURANDO;
 	}
 	
 	@Override
-	public RankingPuntajes getRankingPuntaje() throws RemoteException {
-		return rankingPuntajes;
+	public void comenzarJuego(String nombre) throws RemoteException { 
+		if(jugadores.size() < MIN_JUGADORES || jugadores.size() > 6) {
+			notificarObservadores(new MensajeDeError(getJugador(nombre), "No hay suficientes jugadores"));
+		}else
+			if (estado == CONFIGURANDO) {
+				mazo.inicializar();
+				mazo.mezclar();
+				inicializarCarnaval();
+				inicializarJugadores();
+				repartirCartas();
+				jugadorActual = 0;
+				estado = JUGANDO;
+				notificarObservadores(EventoParade.INICIAR_JUEGO);
+			}else
+				notificarObservadores(new MensajeDeError(getJugador(nombre), "No se puede comenzar una partida en esta etapa"));
 	}
 	
 	@Override
@@ -120,7 +136,7 @@ public class Parade extends ObservableRemoto implements IParade{
 		return rankingGanadores;
 	}
 	
-	private void incializarJugadores() {
+	private void inicializarJugadores() {
 		for (Jugador j: jugadores) {
 			j.inicializar();
 		}
@@ -202,9 +218,6 @@ public class Parade extends ObservableRemoto implements IParade{
 					j.getMano().jugarCarta(c);
 				
 				
-				
-				notificarObservadores(EventoParade.DESCARTE_REALIZADO);	//notifico que hubo un descarte
-				
 				//verifico si todos los jugadores descartaron
 				boolean finDeJuego = true;
 				for(IJugador jugador: jugadores) {		
@@ -217,6 +230,7 @@ public class Parade extends ObservableRemoto implements IParade{
 					estado = FIN_DE_JUEGO;
 					calcularGanador();
 					notificarObservadores(EventoParade.FIN_DE_JUEGO);
+					reiniciarEstado();
 				}
 	}
 	
@@ -273,12 +287,14 @@ public class Parade extends ObservableRemoto implements IParade{
 						if(ganador.getAreaJuego().cantidadTotalCartas() > j.getAreaJuego().cantidadTotalCartas())
 							ganador = j;
 			}
-			rankingPuntajes.procesarGanador(ganador.getNombre(), ganador.getPuntaje());
-			Serializador serializador = new Serializador (archivoRankingPuntajes);
-			System.out.println(serializador.escribirObjeto(rankingPuntajes));
+			try {
+				notificarObservadores(new MensajeGlobal("El Ganador fue... " + ganador.getNombre()));
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			}
 			
 			rankingGanadores.procesarGanador(ganador.getNombre());
-			serializador = new Serializador(archivoHistorialGanadores);
+			Serializador serializador = new Serializador(archivoHistorialGanadores);
 			System.out.println(serializador.escribirObjeto(rankingGanadores));
 		}
 		
