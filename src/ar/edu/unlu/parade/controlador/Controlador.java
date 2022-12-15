@@ -9,6 +9,7 @@ import ar.edu.unlu.parade.modelo.Carnaval;
 import ar.edu.unlu.parade.modelo.Carta;
 import ar.edu.unlu.parade.modelo.IJugador;
 import ar.edu.unlu.parade.modelo.IParade;
+import ar.edu.unlu.parade.modelo.LogInException;
 import ar.edu.unlu.parade.modelo.eventos.EventoParade;
 import ar.edu.unlu.parade.modelo.eventos.MensajeDeError;
 import ar.edu.unlu.parade.modelo.eventos.MensajeGlobal;
@@ -33,7 +34,6 @@ public class Controlador implements IControladorRemoto {
 	}
 	
 	private void notificarEventoVista(EventoParade e) {
-		System.out.println(e.toString());
 		switch(e) {
 		case JUGADOR_ELIMINADO:
 			try {
@@ -99,7 +99,6 @@ public class Controlador implements IControladorRemoto {
 				e1.printStackTrace();
 			}
 			break;
-			
 		}
 		
 	}
@@ -139,6 +138,8 @@ public class Controlador implements IControladorRemoto {
 				ret = true;
 		} catch (RemoteException e) {
 			e.printStackTrace();
+		} catch (LogInException e) {
+			vista.mostrarError(e.getMessage());
 		}	
 		return ret;
 	}
@@ -207,33 +208,33 @@ public class Controlador implements IControladorRemoto {
 		if (miJugador != null) {      //Actualiza la instacia de jugador dentro del controlador
 			IParade juego = (IParade) modelo;
 			miJugador = juego.getJugador(miJugador.getNombre());
-		}
-		if(vista == null)
-			return;
-		
-		if(objeto instanceof EventoParade) {
-			EventoParade evento = (EventoParade) objeto;
-			notificarEventoVista(evento);
-		}
-		
-		if(objeto instanceof MensajeDeError) {
-			MensajeDeError error = (MensajeDeError) objeto;
-			if (error.getReceptor().getNombre().equals(miJugador.getNombre()))
-				vista.mostrarError(error.getMensaje());
-		}
-		
+			if(vista == null)
+				return;
 
-		if(objeto instanceof MensajeIndividual) {
-			MensajeIndividual msj = (MensajeIndividual) objeto;
-			if (msj.getReceptor().getNombre().equals(miJugador.getNombre()))
-				vista.mostrarMensaje(msj.getMensaje());
+			if(objeto instanceof EventoParade) {
+				EventoParade evento = (EventoParade) objeto;
+				notificarEventoVista(evento);
+			}
+
+			if(objeto instanceof MensajeDeError) {
+				MensajeDeError error = (MensajeDeError) objeto;
+				if (error.getReceptor().getNombre().equals(miJugador.getNombre()))
+					vista.mostrarError(error.getMensaje());
+			}
+
+
+			if(objeto instanceof MensajeIndividual) {
+				MensajeIndividual msj = (MensajeIndividual) objeto;
+				if (msj.getReceptor().getNombre().equals(miJugador.getNombre()))
+					vista.mostrarMensaje(msj.getMensaje());
+			}
+
+			if(objeto instanceof MensajeGlobal) {
+				MensajeGlobal mensaje = (MensajeGlobal) objeto;
+				vista.mostrarMensaje(mensaje.getMensaje());
+			}
 		}
-		
-		if(objeto instanceof MensajeGlobal) {
-			MensajeGlobal mensaje = (MensajeGlobal) objeto;
-			vista.mostrarMensaje(mensaje.getMensaje());
-		}
-		
+
 	}
 
 	@Override

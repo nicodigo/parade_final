@@ -9,6 +9,7 @@ import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -30,10 +31,12 @@ public class ParadeLogIn extends JFrame implements IVistaParade {
 	private Controlador controlador;
 	private JPanel contentPane;
 	private JTextField campoUsuario;
+	private JComboBox<String> vistaSeleccionada;
 	private JButton enviar;
 	
 	public ParadeLogIn(Controlador c) {
 		this.controlador = c;
+		c.setVista(this);
 		
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setBounds(0,0, 500, 300);
@@ -44,37 +47,50 @@ public class ParadeLogIn extends JFrame implements IVistaParade {
 			}
 		});
 		contentPane = new JPanel();
-		contentPane.setLayout(new MigLayout("", "[grow]", "[grow][shrink, 100::400]"));
+		contentPane.setLayout(new MigLayout("", "[grow]", "[grow][shrink, 0::400]"));
 		contentPane.setBackground(new Color(12, 25, 40));
 		setContentPane(contentPane);
 		
 		JPanel panelUsuario = new JPanel();
-		panelUsuario.setLayout(new MigLayout("","[]","[]"));
+		panelUsuario.setLayout(new MigLayout("fillx","[align center]","[]"));
 		panelUsuario.setBackground(contentPane.getBackground());
 		
 		JLabel lblUsuario = new JLabel("Ingrese su nombre: ", SwingConstants.CENTER);
 		lblUsuario.setForeground(new Color(239,225,205));
 		lblUsuario.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 15));
-		panelUsuario.add(lblUsuario, "north, shrinky, growx");
+		panelUsuario.add(lblUsuario, "shrinky, growx, wrap");
+		
 		this.campoUsuario = new JTextField();
 		campoUsuario.setBackground(new Color(239,225,205));
 		campoUsuario.setForeground(Color.BLACK);
 		campoUsuario.setCaretColor(Color.BLACK);
-		panelUsuario.add(campoUsuario , "growx, h ::30, center");
+		panelUsuario.add(campoUsuario , "growx,h ::30, w ::250, wrap");
 		
-		contentPane.add(panelUsuario, "grow, center,wrap");
+		JLabel lblVista = new JLabel("Eliga la vista a utilizar: ", SwingConstants.CENTER);
+		lblVista.setForeground(new Color(239,225,205));
+		lblVista.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 15));
+		panelUsuario.add(lblVista, "gapy 50, shrinky, growx, wrap");
+		
+		vistaSeleccionada = new JComboBox<String>();
+		vistaSeleccionada.addItem("Grafica");
+		vistaSeleccionada.addItem("Consola");
+		vistaSeleccionada.setSelectedIndex(0);
+		panelUsuario.add(vistaSeleccionada, "growx, w :: 200");
+		
+		
+		contentPane.add(panelUsuario, "grow,wrap");
 		
 		enviar = new JButton();
 		enviar.setBackground(new Color(255,228,196));
 		enviar.setForeground(Color.BLACK);
 		enviar.setFont(new Font(Font.MONOSPACED, Font.BOLD, 18));
 		enviar.setText("Log In");
-		contentPane.add(enviar, "center, h ::100");
+		contentPane.add(enviar, "growx, h ::100");
 		enviar.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				registrarJugador(campoUsuario.getText());
+				registrarJugador(campoUsuario.getText().trim());
 			}
 			
 		});
@@ -89,9 +105,13 @@ public class ParadeLogIn extends JFrame implements IVistaParade {
 				mostrarError("Longitud maxima: 15 caracteres");
 				else
 					if(controlador.registrarJugador(nombre)) {
-						mostrarMensaje("Jugador registrado con Exito");
-						IVistaParade vistaParade = new ParadeVistaGUI(controlador);
-						vistaParade.inicializar();
+						if(((String)vistaSeleccionada.getSelectedItem()).equals("Grafica")) {
+							IVistaParade vistaParade = new ParadeVistaGUI(controlador);
+							vistaParade.inicializar();
+						}else {
+							IVistaParade vistaParade = new ParadeVistaConsola(controlador);
+							vistaParade.inicializar();
+						}
 						this.dispose();
 					}
 		
@@ -150,7 +170,6 @@ public class ParadeLogIn extends JFrame implements IVistaParade {
 	@Override
 	public void mostrarError(String errorMsj) {
 		JOptionPane.showMessageDialog(null, errorMsj, "Error", JOptionPane.ERROR_MESSAGE);
-		
 	}
 
 	@Override

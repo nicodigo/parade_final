@@ -17,14 +17,9 @@ public class Parade extends ObservableRemoto implements IParade{
 	private Carnaval carnaval;
 	private Mazo mazo;
 	private int jugadorActual;
-	private int estado;
+	private EstadosDeJuego estado;
 	private final String archivoHistorialGanadores = "rankingGanadores.dat";
 	private HistorialGanadores rankingGanadores;
-	public static final int CONFIGURANDO = 0;
-	public static final int JUGANDO = 1;
-	public static final int ULTIMA_RONDA = 2;
-	public static final int DESCARTE = 3;
-	public static final int FIN_DE_JUEGO = 4;
 	public final int MIN_JUGADORES = 2;
 
 	
@@ -34,7 +29,7 @@ public class Parade extends ObservableRemoto implements IParade{
 		jugadores = new ArrayList<Jugador>();
 		carnaval = new Carnaval();
 		mazo = new Mazo();
-		estado = CONFIGURANDO;
+		estado = EstadosDeJuego.CONFIGURANDO;
 		
 		Serializador serializador = new Serializador(archivoHistorialGanadores);
 		rankingGanadores = ((HistorialGanadores) serializador.leerObjeto());
@@ -48,12 +43,12 @@ public class Parade extends ObservableRemoto implements IParade{
 
 
 	@Override
-	public IJugador registrarJugador(String nombre) throws RemoteException {
+	public IJugador registrarJugador(String nombre) throws RemoteException, LogInException {
 		IJugador res = null;
 		if(jugadores.size() > 6){
 			notificarObservadores(new MensajeDeError(getJugador(nombre), "La sala esta llena"));
 		}else {
-		if(estado == CONFIGURANDO) {
+		if(estado == EstadosDeJuego.CONFIGURANDO) {
 			if (!yaExiste(nombre)) {
 				Jugador jugadorAgregado = new Jugador(nombre);
 				jugadores.add(jugadorAgregado);
@@ -61,9 +56,9 @@ public class Parade extends ObservableRemoto implements IParade{
 				notificarObservadores(EventoParade.NUEVO_JUGADOR);
 				notificarObservadores(new MensajeGlobal(nombre + " se ha unido a la partida"));
 			}else
-				notificarObservadores(new MensajeDeError(getJugador(nombre), "El nombre ya se encuentra registrado"));
+				throw new LogInException("El nombre ya se encuentra registrado");
 		}else
-			notificarObservadores(new MensajeDeError(getJugador(nombre), "No te puedes unir a una partida comenzada"));
+			throw new LogInException("No te puedes unir a una partida comenzada");
 		}
 		return res;
 		
@@ -107,7 +102,7 @@ public class Parade extends ObservableRemoto implements IParade{
 		inicializarJugadores();
 		carnaval = new Carnaval();
 		mazo = new Mazo();
-		estado = CONFIGURANDO;
+		estado = EstadosDeJuego.CONFIGURANDO;
 	}
 	
 	@Override
@@ -115,14 +110,14 @@ public class Parade extends ObservableRemoto implements IParade{
 		if(jugadores.size() < MIN_JUGADORES || jugadores.size() > 6) {
 			notificarObservadores(new MensajeDeError(getJugador(nombre), "No hay suficientes jugadores"));
 		}else
-			if (estado == CONFIGURANDO) {
+			if (estado == EstadosDeJuego.CONFIGURANDO) {
 				mazo.inicializar();
 				mazo.mezclar();
 				inicializarCarnaval();
 				inicializarJugadores();
 				repartirCartas();
 				jugadorActual = 0;
-				estado = JUGANDO;
+				estado = EstadosDeJuego.JUGANDO;
 				notificarObservadores(EventoParade.INICIAR_JUEGO);
 			}else
 				notificarObservadores(new MensajeDeError(getJugador(nombre), "No se puede comenzar una partida en esta etapa"));
@@ -159,7 +154,7 @@ public class Parade extends ObservableRemoto implements IParade{
 		IJugador j = getJugador(nombre);
 		if (j == null)
 			return;
-		if (estado == JUGANDO) {
+		if (estado == EstadosDeJuego.JUGANDO) {
 			System.out.println("jugada " + estado);
 			if(j.getMano().jugarCarta(c)) {//si el jugador tiene la carta especificada la juega 
 				
@@ -172,18 +167,18 @@ public class Parade extends ObservableRemoto implements IParade{
 
 				if(mazo.estaVacio() || j.getAreaJuego().tieneTodosLosColores()) {
 					jugadorActual = 0;
-					estado = ULTIMA_RONDA;
+					estado = EstadosDeJuego.ULTIMA_RONDA;
 					notificarObservadores(EventoParade.ULTIMA_RONDA);
 				}
 			}
 		}else
-			if(estado==ULTIMA_RONDA) {
+			if(estado == EstadosDeJuego.ULTIMA_RONDA) {
 				if(j.getMano().jugarCarta(c)) {
 					j.getAreaJuego().agregarCartas(carnaval.jugada(c));
 					notificarObservadores(EventoParade.JUGADA_REALIZADA);
 				}
 				if(jugadorActual == jugadores.size()-1) {
-					estado = DESCARTE;
+					estado = EstadosDeJuego.DESCARTE;
 					notificarObservadores(EventoParade.ETAPA_DESCARTE);
 				}else
 					turnoSiguiente();
@@ -199,12 +194,12 @@ public class Parade extends ObservableRemoto implements IParade{
 		IJugador j = getJugador(nombre);
 		if (j == null)
 			return;
-		if(estado != DESCARTE) {
+		if(estado != EstadosDeJuego.DESCARTE) {
 			MensajeDeError error = new MensajeDeError(j,"No se puede descartar en esta etapa de la partida");
 			notificarObservadores(error);
 			return;
 		}
-		if(estado == DESCARTE ) 
+		if(estado == EstadosDeJuego.DESCARTE ) 
 				j.getMano().jugarCarta(c1);
 				j.getMano().jugarCarta(c2);	//Descarto las 2 cartas pasadas
 				
@@ -225,7 +220,7 @@ public class Parade extends ObservableRemoto implements IParade{
 				
 				//si descartaron es el fin de juego y puedo buscar el ganador
 				if (finDeJuego) {
-					estado = FIN_DE_JUEGO;
+					estado = EstadosDeJuego.FIN_DE_JUEGO;
 					calcularGanador();
 					notificarObservadores(EventoParade.FIN_DE_JUEGO);
 					reiniciarEstado();
@@ -274,7 +269,7 @@ public class Parade extends ObservableRemoto implements IParade{
 	
 	
 	private void calcularGanador() {
-		if(estado == FIN_DE_JUEGO) {
+		if(estado == EstadosDeJuego.FIN_DE_JUEGO) {
 			calcularPuntajes();
 			ganador = jugadores.get(0);
 			for (IJugador j: jugadores) {
@@ -322,11 +317,6 @@ public class Parade extends ObservableRemoto implements IParade{
 		return resultado;
 	}
 	
-//	@Override
-//	public void agregarObservador(ObserverParade o) {
-//		misObservadores.add(o);
-//	}
-
 	@Override
 	public IJugador getJugador(String nombre) throws RemoteException {
 		IJugador result = null;
@@ -339,23 +329,4 @@ public class Parade extends ObservableRemoto implements IParade{
 		return result;
 	}
 
-	
-
-//	public void notificar(EventoParade evento) {
-//		for(ObserverParade o: misObservadores) {
-//			o.actualizar(evento);
-//		}
-//		
-//	}
-//	
-//	@Override
-//	public void notificarError(Jugador j, String msjError) {
-//		for(ObserverParade o: misObservadores) {
-//			o.actualizar(j, msjError);
-//		}
-//		
-//	}
-
-	
-	
 }

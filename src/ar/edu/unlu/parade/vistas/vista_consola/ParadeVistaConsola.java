@@ -638,8 +638,4 @@ public class ParadeVistaConsola extends JFrame implements IVistaParade {
 		
 	}
 
-
-
-	
-
 }

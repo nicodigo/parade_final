@@ -7,12 +7,12 @@ public enum ColorCarta {
 	
 	public Color toAWTColor() {
 		switch (this) {
-		case ROJO: return Color.RED;
-		case AZUL: return Color.BLUE;
-		case VIOLETA: return Color.MAGENTA;
-		case CELESTE: return Color.CYAN;
-		case AMARILLO: return Color.YELLOW;
-		case VERDE: return Color.GREEN;
+		case ROJO: return new Color(251,66,54);
+		case AZUL: return new Color(63,94,247);
+		case VIOLETA: return new Color(157,56,232);
+		case CELESTE: return new Color(93,190,227);
+		case AMARILLO: return new Color(231,235,99);
+		case VERDE: return new Color(85,232,80);
 		default:
 			return Color.WHITE;
 		}

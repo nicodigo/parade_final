@@ -291,9 +291,9 @@ public class ParadeVistaGUI extends JFrame implements IVistaParade {
 	@Override
 	public void actualizarJugadoresConectados(ArrayList<IJugador> jugadores) {
 		if(jugadores != null && !jugadores.isEmpty()) {
-			jugadoresConectados.setText("Jugadores Conectados:\n");
+			jugadoresConectados.setText("Jugadores Conectados:");
 			for(IJugador j: jugadores) {
-				jugadoresConectados.append(" " + j.getNombre());
+				jugadoresConectados.append("\n	" + j.getNombre());
 			}
 		}
 
@@ -415,7 +415,20 @@ public class ParadeVistaGUI extends JFrame implements IVistaParade {
 
 	
 	private void mostrarAreaJuegoJugador() {
-		String nombre = JOptionPane.showInputDialog("Ingrese El Nombre Del Jugador: ");
+		ArrayList<String> jugadores = new ArrayList<String>();
+		for(IJugador j: controlador.getJugadores()) {
+			if(!j.getNombre().equals(controlador.getMiJugador().getNombre()))
+				jugadores.add(j.getNombre());
+		}
+		String nombre = (String) JOptionPane.showInputDialog(
+				null,
+				"Seleccione el Nombre del Jugador:",
+				"Mostrar Area De Juego",
+				JOptionPane.QUESTION_MESSAGE,
+				null,
+				jugadores.toArray(),
+				null
+		);
 		if(nombre != null && !nombre.equals("")) {
 			nombre = nombre.trim();
 			if(controlador.nombreExistente(nombre)) {

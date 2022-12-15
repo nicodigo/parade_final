@@ -9,7 +9,7 @@ import ar.edu.unlu.rmimvc.observer.IObservableRemoto;
 
 public interface IParade extends IObservableRemoto, Serializable{
 
-	IJugador registrarJugador(String nombre) throws RemoteException;
+	IJugador registrarJugador(String nombre) throws RemoteException, LogInException;
 
 	boolean eliminarJugador(String nombre) throws RemoteException;
 
