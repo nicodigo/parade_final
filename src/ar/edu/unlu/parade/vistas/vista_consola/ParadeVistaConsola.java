@@ -471,14 +471,15 @@ public class ParadeVistaConsola extends JFrame implements IVistaParade {
 		mostrarMensaje("\n\nLista de comandos:\n"
 				+ "\t\"clear\": limpia el area de texto\n\n"
 				+ "\t\"reglas\": link al video de Youtube que contiene las reglas del juego.\n\n"
-				+ "\t\"ayuda\": muestra la lista de comandos disponibles\n");
+				+ "\t\"ayuda\": muestra la lista de comandos disponibles\n\n"
+				+ "\t\"ranking\": muestra el top de ganadores\n");
 		
 		if(!jugando)
 			mostrarMensaje( "\t\"play\": comienza un juego nuevo con los jugadores registrados.\n");
 		else
 			mostrarMensaje("\t\"tirar <indice de la carta>\": juega la carta que corresponde con el indice ingresado (ej: \"tirar 3\")\n\n"
 					+ "\t\"area <nombre del jugador>\": muestra por pantalla el area de juego del jugador de nombre <nombre del jugador>\n\n"
-					+ "\t\"desc <indice carta1> <indice carta2>\": descarta las cartas que corresponden con los indices ingresados*\n"
+					+ "\t\"desc <indice carta> <indice carta>\": descarta las cartas que corresponden con los indices ingresados*\n"
 					+ "\t\t*solo funciona en la etapa de descarte. Para mas info vea las reglas");
 
 		
@@ -625,9 +626,10 @@ public class ParadeVistaConsola extends JFrame implements IVistaParade {
 
 	@Override
 	public void inicioEtapaDescarte() {
+		areaTurnoActual.setText("Turno de: ");
 		mostrarMensaje("Etapa de descarte... \n"
 						+ "Debe elegir 2 cartas para descartarlas, las 2 restantes se sumaran a su area de juego\n"
-						+ "para descartar una carta utilice el comando \"desc <indice de la carta>\"");
+						+ "para descartar una carta utilice el comando \"desc <indice carta> <indice carta>\"");
 		
 	}
 

@@ -20,7 +20,7 @@ public class Parade extends ObservableRemoto implements IParade{
 	private EstadosDeJuego estado;
 	private final String archivoHistorialGanadores = "rankingGanadores.dat";
 	private HistorialGanadores rankingGanadores;
-	public final int MIN_JUGADORES = 2;
+	public final int MIN_JUGADORES = 1;
 
 	
 	public Parade() {
@@ -45,10 +45,10 @@ public class Parade extends ObservableRemoto implements IParade{
 	@Override
 	public IJugador registrarJugador(String nombre) throws RemoteException, LogInException {
 		IJugador res = null;
-		if(jugadores.size() > 6){
+		if(jugadores.size() > 5){
 			notificarObservadores(new MensajeDeError(getJugador(nombre), "La sala esta llena"));
 		}else {
-		if(estado == EstadosDeJuego.CONFIGURANDO) {
+		if(estado.equals(EstadosDeJuego.CONFIGURANDO)) {
 			if (!yaExiste(nombre)) {
 				Jugador jugadorAgregado = new Jugador(nombre);
 				jugadores.add(jugadorAgregado);
@@ -110,7 +110,7 @@ public class Parade extends ObservableRemoto implements IParade{
 		if(jugadores.size() < MIN_JUGADORES || jugadores.size() > 6) {
 			notificarObservadores(new MensajeDeError(getJugador(nombre), "No hay suficientes jugadores"));
 		}else
-			if (estado == EstadosDeJuego.CONFIGURANDO) {
+			if (estado.equals(EstadosDeJuego.CONFIGURANDO)) {
 				mazo.inicializar();
 				mazo.mezclar();
 				inicializarCarnaval();
@@ -154,25 +154,24 @@ public class Parade extends ObservableRemoto implements IParade{
 		IJugador j = getJugador(nombre);
 		if (j == null)
 			return;
-		if (estado == EstadosDeJuego.JUGANDO) {
-			System.out.println("jugada " + estado);
+		if (estado.equals(EstadosDeJuego.JUGANDO)) {
 			if(j.getMano().jugarCarta(c)) {//si el jugador tiene la carta especificada la juega 
 				
 				j.getAreaJuego().agregarCartas(carnaval.jugada(c)); //toma las cartas correspondientes del carnaval
 				j.getMano().agregarCarta(mazo.sacarCarta());     //levanta una carta del mazo
 				notificarObservadores(EventoParade.JUGADA_REALIZADA);   //notifico que se realizo una jugada
 				
-				turnoSiguiente();
-
-
 				if(mazo.estaVacio() || j.getAreaJuego().tieneTodosLosColores()) {
 					jugadorActual = 0;
+					notificarObservadores(EventoParade.CAMBIO_TURNO);
 					estado = EstadosDeJuego.ULTIMA_RONDA;
 					notificarObservadores(EventoParade.ULTIMA_RONDA);
-				}
+				}else
+					turnoSiguiente();
+				
 			}
 		}else
-			if(estado == EstadosDeJuego.ULTIMA_RONDA) {
+			if(estado.equals(EstadosDeJuego.ULTIMA_RONDA)) {
 				if(j.getMano().jugarCarta(c)) {
 					j.getAreaJuego().agregarCartas(carnaval.jugada(c));
 					notificarObservadores(EventoParade.JUGADA_REALIZADA);
@@ -194,21 +193,24 @@ public class Parade extends ObservableRemoto implements IParade{
 		IJugador j = getJugador(nombre);
 		if (j == null)
 			return;
-		if(estado != EstadosDeJuego.DESCARTE) {
+		if(!estado.equals(EstadosDeJuego.DESCARTE)) {
 			MensajeDeError error = new MensajeDeError(j,"No se puede descartar en esta etapa de la partida");
 			notificarObservadores(error);
 			return;
 		}
-		if(estado == EstadosDeJuego.DESCARTE ) 
+		if(j.getMano().getCartas().size() != 4) {
+			notificarObservadores(new MensajeDeError(j, "Ya realizaste un descarte."));
+			return;
+		}
+		if(estado.equals( EstadosDeJuego.DESCARTE )){ 
 				j.getMano().jugarCarta(c1);
 				j.getMano().jugarCarta(c2);	//Descarto las 2 cartas pasadas
 				
+				System.out.println("descarte " + j.getNombre() + " cartas: " + j.getMano().getCartas().size());
 				
 				j.getAreaJuego().agregarCartas(j.getMano().getCartas()); //agrego las otras 2 cartas al area de juego del jugador
 				
-				ArrayList<Carta> manoDuplicada = j.getMano().getCartas(); //Elimino las cartas en la mano que agrege al area de juego.
-				for(Carta c: manoDuplicada) 
-					j.getMano().jugarCarta(c);
+				j.getMano().clear(); //elimino las cartas que agregue al area de juego
 				
 				
 				//verifico si todos los jugadores descartaron
@@ -224,7 +226,8 @@ public class Parade extends ObservableRemoto implements IParade{
 					calcularGanador();
 					notificarObservadores(EventoParade.FIN_DE_JUEGO);
 					reiniciarEstado();
-				}
+				} 
+		}
 	}
 	
 	private void turnoSiguiente() throws RemoteException {
@@ -269,7 +272,7 @@ public class Parade extends ObservableRemoto implements IParade{
 	
 	
 	private void calcularGanador() {
-		if(estado == EstadosDeJuego.FIN_DE_JUEGO) {
+		if(estado.equals(EstadosDeJuego.FIN_DE_JUEGO)) {
 			calcularPuntajes();
 			ganador = jugadores.get(0);
 			for (IJugador j: jugadores) {
@@ -285,7 +288,6 @@ public class Parade extends ObservableRemoto implements IParade{
 			} catch (RemoteException e) {
 				e.printStackTrace();
 			}
-			
 			rankingGanadores.procesarGanador(ganador.getNombre());
 			Serializador serializador = new Serializador(archivoHistorialGanadores);
 			System.out.println(serializador.escribirObjeto(rankingGanadores));

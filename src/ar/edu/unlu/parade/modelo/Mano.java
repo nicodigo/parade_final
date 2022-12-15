@@ -36,7 +36,6 @@ public class Mano implements Serializable{
 
 	public void clear() {
 		cartas.clear();
-		
 	}
 	
 	public Carta getCarta(int indice) {

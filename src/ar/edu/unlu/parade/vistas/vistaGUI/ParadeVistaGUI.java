@@ -321,7 +321,7 @@ public class ParadeVistaGUI extends JFrame implements IVistaParade {
 	private void actualizarPanelMano(IJugador miJugador) {
 		if(miJugador != null && miJugador.getMano() != null) {
 			pnlMiMano.removeAll();
-			if(miJugador.getMano().getCartas().size()>0) {
+			if(!miJugador.getMano().getCartas().isEmpty()) {
 				miMano.clear();
 				for(Carta carta: miJugador.getMano().getCartas()) {
 					CartaClickeableGUI cartaClick = new CartaClickeableGUI(carta);
@@ -390,6 +390,7 @@ public class ParadeVistaGUI extends JFrame implements IVistaParade {
 
 	@Override
 	public void inicioEtapaDescarte() {
+		turno.setText("Turno de:\n");
 		mostrarMensaje("** INICIO DE LA ETAPA DE DESCARTE **\n Selecciona dos cartas que desees y presiona el boton \"Descartar\"\n para descartarlas, las dos restantes se sumaran a tu area de juego.");
 	}
 	

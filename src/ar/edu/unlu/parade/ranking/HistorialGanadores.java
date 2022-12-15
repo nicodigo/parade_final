@@ -2,6 +2,7 @@ package ar.edu.unlu.parade.ranking;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Comparator;
 
 public class HistorialGanadores implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -18,18 +19,19 @@ public class HistorialGanadores implements Serializable {
 	public void procesarGanador(String nombre) {
 		EntidadGanador j = buscar(nombre);
 		if(j != null) {
-			if(ganadoresHistoricos.size() == 1) 
+			if(ganadoresHistoricos.indexOf(j) == 0) 
 				ganadoresHistoricos.get(0).incrementarPartidasGanadas();
 			else {
 				j.incrementarPartidasGanadas();
 				int i = ganadoresHistoricos.indexOf(j)-1;
-				while(j.getPartidasGanadas() > ganadoresHistoricos.get(i).getPartidasGanadas())
+				while(j.getPartidasGanadas() > ganadoresHistoricos.get(i).getPartidasGanadas()) {
 					i--;
-				if(i < 0)
-					i = 0;
-				ganadoresHistoricos.remove(j);
-				ganadoresHistoricos.add(i, j);
+					if(i < 0)
+						break;
+				}
 				
+				ganadoresHistoricos.remove(j);
+				ganadoresHistoricos.add(i+1, j);		
 			}
 		}else {
 			j = new EntidadGanador(nombre, 1);

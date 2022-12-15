@@ -185,6 +185,7 @@ public class Controlador implements IControladorRemoto {
 	public void descartar(Carta c1, Carta c2) {
 			try {
 				juego.descartar(miJugador.getNombre(), c1, c2);
+				miJugador = juego.getJugador(miJugador.getNombre());
 				vista.actualizarMiJugador(miJugador);
 			} catch (RemoteException e) {
 				// TODO Auto-generated catch block
