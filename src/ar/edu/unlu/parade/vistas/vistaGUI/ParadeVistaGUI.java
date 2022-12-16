@@ -78,7 +78,6 @@ public class ParadeVistaGUI extends JFrame implements IVistaParade {
 		this.addWindowListener(new WindowAdapter() {
 		    public void windowClosing(WindowEvent e) {
 		        controlador.desconectar();
-		        System.exit(0);
 		    }
 		    
 		});
@@ -302,7 +301,7 @@ public class ParadeVistaGUI extends JFrame implements IVistaParade {
 	@Override
 	public void juegoIniciado(Carnaval carnaval) {
 		actualizarPanelCarnaval(carnaval);
-		actualizarPanelMano(controlador.getMiJugador());
+		actualizarMiJugador(controlador.getMiJugador());
 		cambioDeTurno(controlador.getJugadorActual());
 		mostrarMensaje("El juego ha iniciado");
 		
@@ -409,7 +408,6 @@ public class ParadeVistaGUI extends JFrame implements IVistaParade {
 		if(miAreaDeJuego != null) {
 			miAreaDeJuego.setVisible(!miAreaDeJuego.isVisible());
 		}else {
-			System.out.println("es nula");
 			miAreaDeJuego = new AreaDeJuegoGUI(controlador.getMiJugador());
 		}
 	}

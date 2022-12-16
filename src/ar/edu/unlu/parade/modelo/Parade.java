@@ -46,7 +46,7 @@ public class Parade extends ObservableRemoto implements IParade{
 	public IJugador registrarJugador(String nombre) throws RemoteException, LogInException {
 		IJugador res = null;
 		if(jugadores.size() > 5){
-			notificarObservadores(new MensajeDeError(getJugador(nombre), "La sala esta llena"));
+			throw new LogInException("La sala esta llena");
 		}else {
 		if(estado.equals(EstadosDeJuego.CONFIGURANDO)) {
 			if (!yaExiste(nombre)) {
@@ -86,6 +86,8 @@ public class Parade extends ObservableRemoto implements IParade{
 				notificarObservadores(EventoParade.JUGADOR_ELIMINADO);
 				notificarObservadores(new MensajeGlobal(nombre + " se ha desconectado de la partida"));
 				if (indiceEliminado == jugadorActual)
+					if(indiceEliminado == jugadores.size())
+						jugadorActual = 0;
 					notificarObservadores(EventoParade.CAMBIO_TURNO);
 			}else
 				if(jugadores.size() == 0) {
@@ -110,7 +112,8 @@ public class Parade extends ObservableRemoto implements IParade{
 		if(jugadores.size() < MIN_JUGADORES || jugadores.size() > 6) {
 			notificarObservadores(new MensajeDeError(getJugador(nombre), "No hay suficientes jugadores"));
 		}else
-			if (estado.equals(EstadosDeJuego.CONFIGURANDO)) {
+			if (estado.equals(EstadosDeJuego.CONFIGURANDO) || estado.equals(EstadosDeJuego.FIN_DE_JUEGO)) {
+				reiniciarEstado();
 				mazo.inicializar();
 				mazo.mezclar();
 				inicializarCarnaval();
@@ -206,8 +209,6 @@ public class Parade extends ObservableRemoto implements IParade{
 				j.getMano().jugarCarta(c1);
 				j.getMano().jugarCarta(c2);	//Descarto las 2 cartas pasadas
 				
-				System.out.println("descarte " + j.getNombre() + " cartas: " + j.getMano().getCartas().size());
-				
 				j.getAreaJuego().agregarCartas(j.getMano().getCartas()); //agrego las otras 2 cartas al area de juego del jugador
 				
 				j.getMano().clear(); //elimino las cartas que agregue al area de juego
@@ -225,7 +226,6 @@ public class Parade extends ObservableRemoto implements IParade{
 					estado = EstadosDeJuego.FIN_DE_JUEGO;
 					calcularGanador();
 					notificarObservadores(EventoParade.FIN_DE_JUEGO);
-					reiniciarEstado();
 				} 
 		}
 	}
@@ -290,7 +290,7 @@ public class Parade extends ObservableRemoto implements IParade{
 			}
 			rankingGanadores.procesarGanador(ganador.getNombre());
 			Serializador serializador = new Serializador(archivoHistorialGanadores);
-			System.out.println(serializador.escribirObjeto(rankingGanadores));
+			serializador.escribirObjeto(rankingGanadores);
 		}
 		
 	}

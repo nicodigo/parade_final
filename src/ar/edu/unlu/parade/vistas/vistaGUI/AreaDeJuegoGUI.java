@@ -24,7 +24,7 @@ public class AreaDeJuegoGUI extends JFrame {
 		setTitle("Visualizador de area de juego");
 		
 		contentPane = new JPanel();
-		contentPane.setLayout(new MigLayout("","[]", "[]"));
+		contentPane.setLayout(new MigLayout(""));
 		contentPane.setBorder(BorderFactory.createEmptyBorder());
 		contentPane.setBackground(new Color(111,78,45));
 		setContentPane(contentPane);
@@ -42,17 +42,18 @@ public class AreaDeJuegoGUI extends JFrame {
 		JLabel titulo = new JLabel("Area de juego de: "+ jugador.getNombre());
 		titulo.setFont(new Font(Font.MONOSPACED, Font.BOLD, 20));
 		titulo.setForeground(Color.BLACK);
-		contentPane.add(titulo, "h ::30, growx, wrap");
+		contentPane.add(titulo, "h ::30, north");
 		for(ColorCarta col: ColorCarta.values()) {
 			ArrayList<Carta> fila = jugador.getAreaJuego().getFilaCartas(col);
 			
 			for(int i = 0; i<fila.size()-1; i++) 
-				contentPane.add(new CartaGUI(fila.get(i)), "grow, h ::50, w ::35, split 2");
+				contentPane.add(new CartaGUI(fila.get(i)), "shrinkx, h ::50, w ::35");
 			
 			if(fila.size() > 0)
-				contentPane.add(new CartaGUI(fila.get(fila.size()-1)), "grow, h ::50, w ::35, wrap");
+				contentPane.add(new CartaGUI(fila.get(fila.size()-1)), "shrinkx, h ::50, w ::35, wrap");
 		}
 		revalidate();
+		this.repaint();
 	}
 	
 }
